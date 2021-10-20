@@ -1,16 +1,25 @@
 import React, { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from "yup";
 
 import './App.css';
 
 type Inputs = {
   nameForm: string;
-  ageForm: string;
+  ageForm: number;
 }
+
+const schema = yup.object({
+  nameForm: yup.string().required(),
+  ageForm: yup.number().positive().integer().required()
+}).required();
 
 function App() {
 
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<Inputs>();
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<Inputs>({
+    resolver: yupResolver(schema)
+  });
   const [name, setName] = useState<string | undefined>('Visitante');
   
   const onSubmit: SubmitHandler<Inputs> = (data) => {
@@ -28,7 +37,10 @@ function App() {
         <h1>Hello, {name}</h1>
 
         <input type="text" id="name" placeholder="Name" defaultValue="Joe" {...register("nameForm")} />
-        <input type="text" id="age" placeholder="Age" {...register("ageForm", {required: true})} />
+        <p>{errors.nameForm?.message}</p>
+
+        <input type="number" id="age" placeholder="Age" {...register("ageForm", {required: true})} />
+        <p>{errors.ageForm?.message}</p>
 
         {errors.ageForm && <span> This field is required</span>}
 
